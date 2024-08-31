@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package keeper;
+option go_package = "./protobuf";
+
+import "google/protobuf/empty.proto";
+
+service KeeperService {
+  rpc GetText(GetTextRequest) returns (GetTextResponse);
+  rpc SaveText(SaveTextRequest) returns (SaveTextResponse);
+  rpc GetBytes(GetBytesRequest) returns (stream GetBytesResponse);
+  rpc SaveBytes(stream SaveBytesRequest) returns (SaveBytesResponse);
+}
+
+message GetTextRequest {
+  string ID = 1;
+}
+
+message GetTextResponse {
+  string text = 1;
+  string name = 2;
+}
+
+message SaveTextRequest {
+  string text = 1;
+  string name = 2;
+}
+
+message SaveTextResponse {
+  string ID = 1;
+}
+
+message GetBytesRequest {
+  string ID = 1;
+}
+
+message GetBytesResponse {
+  oneof data {
+    string filename = 1;
+    bytes chunk = 2;
+    string hashSum = 3;
+  }
+}
+
+message SaveBytesRequest {
+  oneof data {
+    string filename = 1;
+    bytes chunk = 2;
+    string hashSum = 3;
+  }
+}
+
+message SaveBytesResponse {
+  string ID = 1;
+}
+
