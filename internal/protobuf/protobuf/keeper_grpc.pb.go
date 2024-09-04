@@ -20,13 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	KeeperService_GetText_FullMethodName         = "/keeper.KeeperService/GetText"
-	KeeperService_SaveText_FullMethodName        = "/keeper.KeeperService/SaveText"
-	KeeperService_GetBytes_FullMethodName        = "/keeper.KeeperService/GetBytes"
-	KeeperService_SaveBytes_FullMethodName       = "/keeper.KeeperService/SaveBytes"
-	KeeperService_GetCredentials_FullMethodName  = "/keeper.KeeperService/GetCredentials"
-	KeeperService_SaveCredentials_FullMethodName = "/keeper.KeeperService/SaveCredentials"
-	KeeperService_GetElements_FullMethodName     = "/keeper.KeeperService/GetElements"
+	KeeperService_GetText_FullMethodName           = "/keeper.KeeperService/GetText"
+	KeeperService_SaveText_FullMethodName          = "/keeper.KeeperService/SaveText"
+	KeeperService_DeleteText_FullMethodName        = "/keeper.KeeperService/DeleteText"
+	KeeperService_GetBytes_FullMethodName          = "/keeper.KeeperService/GetBytes"
+	KeeperService_SaveBytes_FullMethodName         = "/keeper.KeeperService/SaveBytes"
+	KeeperService_DeleteBytes_FullMethodName       = "/keeper.KeeperService/DeleteBytes"
+	KeeperService_GetCredentials_FullMethodName    = "/keeper.KeeperService/GetCredentials"
+	KeeperService_SaveCredentials_FullMethodName   = "/keeper.KeeperService/SaveCredentials"
+	KeeperService_DeleteCredentials_FullMethodName = "/keeper.KeeperService/DeleteCredentials"
+	KeeperService_GetCreditCard_FullMethodName     = "/keeper.KeeperService/GetCreditCard"
+	KeeperService_SaveCreditCard_FullMethodName    = "/keeper.KeeperService/SaveCreditCard"
+	KeeperService_DeleteCreditCard_FullMethodName  = "/keeper.KeeperService/DeleteCreditCard"
+	KeeperService_GetElements_FullMethodName       = "/keeper.KeeperService/GetElements"
 )
 
 // KeeperServiceClient is the client API for KeeperService service.
@@ -35,10 +41,16 @@ const (
 type KeeperServiceClient interface {
 	GetText(ctx context.Context, in *GetTextRequest, opts ...grpc.CallOption) (*GetTextResponse, error)
 	SaveText(ctx context.Context, in *SaveTextRequest, opts ...grpc.CallOption) (*SaveTextResponse, error)
+	DeleteText(ctx context.Context, in *DeleteTextRequest, opts ...grpc.CallOption) (*DeleteTextResponse, error)
 	GetBytes(ctx context.Context, in *GetBytesRequest, opts ...grpc.CallOption) (KeeperService_GetBytesClient, error)
 	SaveBytes(ctx context.Context, opts ...grpc.CallOption) (KeeperService_SaveBytesClient, error)
+	DeleteBytes(ctx context.Context, in *DeleteBytesRequest, opts ...grpc.CallOption) (*DeleteBytesResponse, error)
 	GetCredentials(ctx context.Context, in *GetCredentialsRequest, opts ...grpc.CallOption) (*GetCredentialsResponse, error)
 	SaveCredentials(ctx context.Context, in *SaveCredentialsRequest, opts ...grpc.CallOption) (*SaveCredentialsResponse, error)
+	DeleteCredentials(ctx context.Context, in *DeleteCredentialsRequest, opts ...grpc.CallOption) (*DeleteCredentialsResponse, error)
+	GetCreditCard(ctx context.Context, in *GetCreditCardRequest, opts ...grpc.CallOption) (*GetCreditCardResponse, error)
+	SaveCreditCard(ctx context.Context, in *SaveCreditCardRequest, opts ...grpc.CallOption) (*SaveCreditCardResponse, error)
+	DeleteCreditCard(ctx context.Context, in *DeleteCreditCardRequest, opts ...grpc.CallOption) (*DeleteCreditCardResponse, error)
 	GetElements(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Elements, error)
 }
 
@@ -62,6 +74,15 @@ func (c *keeperServiceClient) GetText(ctx context.Context, in *GetTextRequest, o
 func (c *keeperServiceClient) SaveText(ctx context.Context, in *SaveTextRequest, opts ...grpc.CallOption) (*SaveTextResponse, error) {
 	out := new(SaveTextResponse)
 	err := c.cc.Invoke(ctx, KeeperService_SaveText_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) DeleteText(ctx context.Context, in *DeleteTextRequest, opts ...grpc.CallOption) (*DeleteTextResponse, error) {
+	out := new(DeleteTextResponse)
+	err := c.cc.Invoke(ctx, KeeperService_DeleteText_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +155,15 @@ func (x *keeperServiceSaveBytesClient) CloseAndRecv() (*SaveBytesResponse, error
 	return m, nil
 }
 
+func (c *keeperServiceClient) DeleteBytes(ctx context.Context, in *DeleteBytesRequest, opts ...grpc.CallOption) (*DeleteBytesResponse, error) {
+	out := new(DeleteBytesResponse)
+	err := c.cc.Invoke(ctx, KeeperService_DeleteBytes_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *keeperServiceClient) GetCredentials(ctx context.Context, in *GetCredentialsRequest, opts ...grpc.CallOption) (*GetCredentialsResponse, error) {
 	out := new(GetCredentialsResponse)
 	err := c.cc.Invoke(ctx, KeeperService_GetCredentials_FullMethodName, in, out, opts...)
@@ -146,6 +176,42 @@ func (c *keeperServiceClient) GetCredentials(ctx context.Context, in *GetCredent
 func (c *keeperServiceClient) SaveCredentials(ctx context.Context, in *SaveCredentialsRequest, opts ...grpc.CallOption) (*SaveCredentialsResponse, error) {
 	out := new(SaveCredentialsResponse)
 	err := c.cc.Invoke(ctx, KeeperService_SaveCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) DeleteCredentials(ctx context.Context, in *DeleteCredentialsRequest, opts ...grpc.CallOption) (*DeleteCredentialsResponse, error) {
+	out := new(DeleteCredentialsResponse)
+	err := c.cc.Invoke(ctx, KeeperService_DeleteCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) GetCreditCard(ctx context.Context, in *GetCreditCardRequest, opts ...grpc.CallOption) (*GetCreditCardResponse, error) {
+	out := new(GetCreditCardResponse)
+	err := c.cc.Invoke(ctx, KeeperService_GetCreditCard_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) SaveCreditCard(ctx context.Context, in *SaveCreditCardRequest, opts ...grpc.CallOption) (*SaveCreditCardResponse, error) {
+	out := new(SaveCreditCardResponse)
+	err := c.cc.Invoke(ctx, KeeperService_SaveCreditCard_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) DeleteCreditCard(ctx context.Context, in *DeleteCreditCardRequest, opts ...grpc.CallOption) (*DeleteCreditCardResponse, error) {
+	out := new(DeleteCreditCardResponse)
+	err := c.cc.Invoke(ctx, KeeperService_DeleteCreditCard_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,10 +233,16 @@ func (c *keeperServiceClient) GetElements(ctx context.Context, in *emptypb.Empty
 type KeeperServiceServer interface {
 	GetText(context.Context, *GetTextRequest) (*GetTextResponse, error)
 	SaveText(context.Context, *SaveTextRequest) (*SaveTextResponse, error)
+	DeleteText(context.Context, *DeleteTextRequest) (*DeleteTextResponse, error)
 	GetBytes(*GetBytesRequest, KeeperService_GetBytesServer) error
 	SaveBytes(KeeperService_SaveBytesServer) error
+	DeleteBytes(context.Context, *DeleteBytesRequest) (*DeleteBytesResponse, error)
 	GetCredentials(context.Context, *GetCredentialsRequest) (*GetCredentialsResponse, error)
 	SaveCredentials(context.Context, *SaveCredentialsRequest) (*SaveCredentialsResponse, error)
+	DeleteCredentials(context.Context, *DeleteCredentialsRequest) (*DeleteCredentialsResponse, error)
+	GetCreditCard(context.Context, *GetCreditCardRequest) (*GetCreditCardResponse, error)
+	SaveCreditCard(context.Context, *SaveCreditCardRequest) (*SaveCreditCardResponse, error)
+	DeleteCreditCard(context.Context, *DeleteCreditCardRequest) (*DeleteCreditCardResponse, error)
 	GetElements(context.Context, *emptypb.Empty) (*Elements, error)
 	mustEmbedUnimplementedKeeperServiceServer()
 }
@@ -185,17 +257,35 @@ func (UnimplementedKeeperServiceServer) GetText(context.Context, *GetTextRequest
 func (UnimplementedKeeperServiceServer) SaveText(context.Context, *SaveTextRequest) (*SaveTextResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveText not implemented")
 }
+func (UnimplementedKeeperServiceServer) DeleteText(context.Context, *DeleteTextRequest) (*DeleteTextResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteText not implemented")
+}
 func (UnimplementedKeeperServiceServer) GetBytes(*GetBytesRequest, KeeperService_GetBytesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetBytes not implemented")
 }
 func (UnimplementedKeeperServiceServer) SaveBytes(KeeperService_SaveBytesServer) error {
 	return status.Errorf(codes.Unimplemented, "method SaveBytes not implemented")
 }
+func (UnimplementedKeeperServiceServer) DeleteBytes(context.Context, *DeleteBytesRequest) (*DeleteBytesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteBytes not implemented")
+}
 func (UnimplementedKeeperServiceServer) GetCredentials(context.Context, *GetCredentialsRequest) (*GetCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCredentials not implemented")
 }
 func (UnimplementedKeeperServiceServer) SaveCredentials(context.Context, *SaveCredentialsRequest) (*SaveCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveCredentials not implemented")
+}
+func (UnimplementedKeeperServiceServer) DeleteCredentials(context.Context, *DeleteCredentialsRequest) (*DeleteCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCredentials not implemented")
+}
+func (UnimplementedKeeperServiceServer) GetCreditCard(context.Context, *GetCreditCardRequest) (*GetCreditCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCreditCard not implemented")
+}
+func (UnimplementedKeeperServiceServer) SaveCreditCard(context.Context, *SaveCreditCardRequest) (*SaveCreditCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveCreditCard not implemented")
+}
+func (UnimplementedKeeperServiceServer) DeleteCreditCard(context.Context, *DeleteCreditCardRequest) (*DeleteCreditCardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteCreditCard not implemented")
 }
 func (UnimplementedKeeperServiceServer) GetElements(context.Context, *emptypb.Empty) (*Elements, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetElements not implemented")
@@ -249,6 +339,24 @@ func _KeeperService_SaveText_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _KeeperService_DeleteText_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTextRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).DeleteText(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_DeleteText_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).DeleteText(ctx, req.(*DeleteTextRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KeeperService_GetBytes_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(GetBytesRequest)
 	if err := stream.RecvMsg(m); err != nil {
@@ -296,6 +404,24 @@ func (x *keeperServiceSaveBytesServer) Recv() (*SaveBytesRequest, error) {
 	return m, nil
 }
 
+func _KeeperService_DeleteBytes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBytesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).DeleteBytes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_DeleteBytes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).DeleteBytes(ctx, req.(*DeleteBytesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _KeeperService_GetCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCredentialsRequest)
 	if err := dec(in); err != nil {
@@ -328,6 +454,78 @@ func _KeeperService_SaveCredentials_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(KeeperServiceServer).SaveCredentials(ctx, req.(*SaveCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_DeleteCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).DeleteCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_DeleteCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).DeleteCredentials(ctx, req.(*DeleteCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_GetCreditCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCreditCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).GetCreditCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_GetCreditCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).GetCreditCard(ctx, req.(*GetCreditCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_SaveCreditCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveCreditCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).SaveCreditCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_SaveCreditCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).SaveCreditCard(ctx, req.(*SaveCreditCardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_DeleteCreditCard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteCreditCardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).DeleteCreditCard(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_DeleteCreditCard_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).DeleteCreditCard(ctx, req.(*DeleteCreditCardRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -366,12 +564,36 @@ var KeeperService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _KeeperService_SaveText_Handler,
 		},
 		{
+			MethodName: "DeleteText",
+			Handler:    _KeeperService_DeleteText_Handler,
+		},
+		{
+			MethodName: "DeleteBytes",
+			Handler:    _KeeperService_DeleteBytes_Handler,
+		},
+		{
 			MethodName: "GetCredentials",
 			Handler:    _KeeperService_GetCredentials_Handler,
 		},
 		{
 			MethodName: "SaveCredentials",
 			Handler:    _KeeperService_SaveCredentials_Handler,
+		},
+		{
+			MethodName: "DeleteCredentials",
+			Handler:    _KeeperService_DeleteCredentials_Handler,
+		},
+		{
+			MethodName: "GetCreditCard",
+			Handler:    _KeeperService_GetCreditCard_Handler,
+		},
+		{
+			MethodName: "SaveCreditCard",
+			Handler:    _KeeperService_SaveCreditCard_Handler,
+		},
+		{
+			MethodName: "DeleteCreditCard",
+			Handler:    _KeeperService_DeleteCreditCard_Handler,
 		},
 		{
 			MethodName: "GetElements",

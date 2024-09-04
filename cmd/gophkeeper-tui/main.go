@@ -26,33 +26,56 @@ type ElementData struct {
 
 // model represents the state of the TUI, including the elements and cursor positions
 type model struct {
-	elements              []ElementData
-	cursorIndex           int
-	actionCursor          int
-	actionSelected        bool
-	menuActionCursor      int
-	menuActionSelected    bool
-	menuActions           []string
-	actions               []string
-	logs                  []string
-	credentialView        bool
-	dataView              bool
-	createCredentialsView bool
-	loginCredentials      string
-	passwordCredentials   string
-	data                  string
+	elements           []ElementData
+	cursorIndex        int
+	actionCursor       int
+	actionSelected     bool
+	menuActionCursor   int
+	menuActionSelected bool
+	menuActions        []string
+	actions            []string
+	logs               []string
+	credentialView     bool
+	dataView           bool
+	data               string
+
+	// credentials
+	createCredentialsView     bool
+	credentialsModel          CreateCredentialsModel
+	createCredentialsViewBool bool
+
+	// credit card info
+
+	createCreditCardView     bool
+	creditCardModel          CreateCreditCardModel
+	createCreditCardViewBool bool
 }
+
+var (
+	focusedStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	blurredStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	cursorStyle         = focusedStyle
+	noStyle             = lipgloss.NewStyle()
+	helpStyle           = blurredStyle
+	cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
+
+	focusedButton = focusedStyle.Render("[ Submit ]")
+	blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
+)
 
 var width, height, err = term.GetSize(0)
 
 func initialModel() model {
-	return model{
+	m := model{
 		elements:    []ElementData{},
 		cursorIndex: 0,
 		actions:     []string{"Get", "Delete"},
-		menuActions: []string{"Create Credentials", "Exit"},
+		menuActions: []string{"Create Credit Card", "Create Credentials", "Exit"},
 		logs:        []string{},
 	}
+	m.credentialsModel = initialCreateCredentialsModel(m)
+	m.creditCardModel = initialCreateCreditCardModel(m)
+	return m
 }
 
 // Msg for fetching elements
@@ -129,7 +152,31 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 	case fetchMsg:
 		m.elements = msg.elements
 		return m, nil
+	// credentials
+	case credentialsView:
+		m.credentialsModel = initialCreateCredentialsModel(m)
+		m.createCredentialsViewBool = true
+	case credentialsCreatedType:
+		m.credentialsModel = initialCreateCredentialsModel(m)
+		m.createCredentialsViewBool = false
+		m.data = "Credentials are created"
+		return m, m.Init()
+	// credit card
+	case creditCardView:
+		m.creditCardModel = initialCreateCreditCardModel(m)
+		m.createCreditCardViewBool = true
+	case creditCardCreatedType:
+		m.creditCardModel = initialCreateCreditCardModel(m)
+		m.createCreditCardViewBool = false
+		m.data = "Credit Card is created"
+		return m, m.Init()
 	case bubbletea.KeyMsg:
+		if m.createCredentialsViewBool {
+			return m.credentialsModel.Update(msg)
+		}
+		if m.createCreditCardViewBool {
+			return m.creditCardModel.Update(msg)
+		}
 		switch msg.String() {
 		case "ctrl+c":
 			return m, bubbletea.Quit
@@ -169,8 +216,6 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 				//m.data = ""
 			} else if m.credentialView {
 				m.credentialView = false
-				m.loginCredentials = ""
-				m.passwordCredentials = ""
 			} else if m.menuActionSelected {
 				result := m.handleMenuAction()
 				m.menuActionSelected = false
@@ -191,7 +236,7 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 	case dataMsg:
 		//m.dataView = true
 		m.data = string(msg)
-		return m, nil
+		return m, m.Init()
 	case clearLogMsg:
 		index := int(msg)
 		if index >= 0 && index < len(m.logs) {
@@ -205,15 +250,19 @@ func (m model) Update(msg bubbletea.Msg) (bubbletea.Model, bubbletea.Cmd) {
 func (m model) handleMenuAction() bubbletea.Cmd {
 	switch m.menuActions[m.menuActionCursor] {
 	case "Create Credentials":
-		m.createCredentialsView = true
-		return nil
+		return createCredentials()
+	case "Create Credit Card":
+		return createCreditCard()
 	}
 	return nil
 }
 
 func (m model) handleAction() bubbletea.Cmd {
 	selectedElement := m.elements[m.cursorIndex]
-	switch m.actions[m.actionCursor] {
+	selectedActionCursor := m.actionCursor
+	m.cursorIndex = 0
+	m.actionCursor = 0
+	switch m.actions[selectedActionCursor] {
 	case "Get":
 		if selectedElement.Type == "bytes" {
 			conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
@@ -251,10 +300,57 @@ func (m model) handleAction() bubbletea.Cmd {
 					resp.Password,
 				),
 			)
+		} else if selectedElement.Type == "card" {
+			conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
+			if err != nil {
+				log.Fatalf("Failed to connect: %v", err)
+			}
+			defer conn.Close()
+
+			keeper := client.NewKeeperServiceClient(conn)
+
+			resp, err := keeper.GetCreditCard(context.Background(), selectedElement.ID)
+			if err != nil {
+				return logToUI(fmt.Sprintf("Failed to download: %v", err))
+			}
+
+			return dataToUI(
+				fmt.Sprintf(
+					"Credit Card, object %s:\nNumber: %s\nEXP: %s\nEXP: %s",
+					selectedElement.ID,
+					resp.CardNumber,
+					resp.Exp,
+					resp.Cvv,
+				),
+			)
 		}
 	case "Delete":
-		// Implement the delete functionality (currently empty)
-		return logToUI(fmt.Sprintf("Delete action triggered for %s", selectedElement.ID))
+		conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
+		if err != nil {
+			log.Fatalf("Failed to connect: %v", err)
+		}
+		defer conn.Close()
+
+		keeper := client.NewKeeperServiceClient(conn)
+		if selectedElement.Type == "bytes" {
+			_, err := keeper.DeleteBytes(context.Background(), selectedElement.ID)
+			if err != nil {
+				return logToUI(fmt.Sprintf("Failed to delete bytes: %v", err))
+			}
+			return dataToUI(fmt.Sprintf("Delete for object %s", selectedElement.ID))
+		} else if selectedElement.Type == "credentials" {
+			_, err := keeper.DeleteCredentials(context.Background(), selectedElement.ID)
+			if err != nil {
+				return logToUI(fmt.Sprintf("Failed to delete credentials: %v", err))
+			}
+			return dataToUI(fmt.Sprintf("Delete for object %s", selectedElement.ID))
+		} else if selectedElement.Type == "card" {
+			_, err := keeper.DeleteCreditCard(context.Background(), selectedElement.ID)
+			if err != nil {
+				return logToUI(fmt.Sprintf("Failed to delete credit card: %v", err))
+			}
+			return dataToUI(fmt.Sprintf("Delete for object %s", selectedElement.ID))
+		}
 	}
 	return nil
 }
@@ -271,18 +367,11 @@ func (m model) View() string {
 
 	*/
 
-	if m.createCredentialsView {
-		style1 := lipgloss.NewStyle().Width(int(float64(width) * 0.6))
-		style2 := lipgloss.NewStyle().Width(int(float64(width) * 0.4))
-
-		view1 := m.viewMenuActionMenu()
-		view2 := "Data:\n\n" + m.data
-
-		return lipgloss.JoinHorizontal(lipgloss.Top, []string{style1.Render(view1), style2.Render(view2)}...)
+	if m.createCredentialsViewBool {
+		return m.credentialsModel.View()
 	}
-
-	if len(m.elements) == 0 {
-		return "Loading..."
+	if m.createCreditCardViewBool {
+		return m.creditCardModel.View()
 	}
 
 	if m.menuActionSelected {
@@ -332,17 +421,15 @@ func (m model) View() string {
 		sb.WriteString(formatRow(el, selected))
 		sb.WriteString("\n")
 	}
+	sb.WriteString("\nPress Tab for menu.")
 	sb.WriteString("\nPress Ctrl+C to exit.")
 	sb.WriteString("\nPress Enter to select an item.")
 	//sb.WriteString("\n\nData:\n\n")
 	//sb.WriteString(m.data)
-	/*
-		sb.WriteString("\n\nLogs:\n")
-		for _, logLine := range m.logs {
-			sb.WriteString(logLine + "\n")
-		}
-
-	*/
+	sb.WriteString("\n\nLogs:\n")
+	for _, logLine := range m.logs {
+		sb.WriteString(logLine + "\n")
+	}
 
 	style1 := lipgloss.NewStyle().Width(int(float64(width) * 0.6))
 	style2 := lipgloss.NewStyle().Width(int(float64(width) * 0.4))
@@ -351,21 +438,6 @@ func (m model) View() string {
 	view2 := "Data:\n\n" + m.data
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, []string{style1.Render(view1), style2.Render(view2)}...)
-	//return
-}
-
-func (m model) createCredentialsViewMenu() string {
-	var sb strings.Builder
-	sb.WriteString("Select an action for the item:\n\n")
-
-	for i, action := range m.actions {
-		cursor := " "
-		if m.actionCursor == i {
-			cursor = ">"
-		}
-		sb.WriteString(fmt.Sprintf("%s %s\n", cursor, action))
-	}
-	return sb.String()
 }
 
 func (m model) viewActionMenu() string {

@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/google/uuid"
 	pb "github.com/romanyakovlev/gophkeeper/internal/protobuf/protobuf"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type CredentialsData struct {
@@ -44,4 +46,49 @@ func (s *Server) SaveCredentials(ctx context.Context, in *pb.SaveCredentialsRequ
 	})
 
 	return &pb.SaveCredentialsResponse{ID: objID.String()}, nil
+}
+
+// DeleteCredentials deletes credentials from the server's data slice based on the provided ID.
+func (s *Server) DeleteCredentials(ctx context.Context, in *pb.DeleteCredentialsRequest) (*pb.DeleteCredentialsResponse, error) {
+	objID, err := uuid.Parse(in.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	var found bool
+	var indexToDelete int
+	for index, element := range credentialsDataSlice {
+		if element.ID == objID {
+			found = true
+			indexToDelete = index
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "credentials with ID %s not found", in.ID)
+	}
+
+	// Remove the BytesData from the slice
+	credentialsDataSlice = append(credentialsDataSlice[:indexToDelete], credentialsDataSlice[indexToDelete+1:]...)
+
+	for index, element := range elementsDataSlice {
+		if element.ID == objID {
+			indexToDelete = index
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "credentials with ID %s not found", in.ID)
+	}
+
+	// Remove the BytesData from the slice
+	elementsDataSlice = append(elementsDataSlice[:indexToDelete], elementsDataSlice[indexToDelete+1:]...)
+
+	if found {
+		return &pb.DeleteCredentialsResponse{Success: true}, nil
+	} else {
+		return &pb.DeleteCredentialsResponse{Success: false}, nil
+	}
 }

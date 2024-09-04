@@ -32,3 +32,16 @@ func (k *KeeperServiceClient) GetCredentials(ctx context.Context, id string) (*p
 
 	return resp, nil
 }
+
+func (k *KeeperServiceClient) DeleteCredentials(ctx context.Context, id string) (*pb.DeleteCredentialsResponse, error) {
+	req := &pb.DeleteCredentialsRequest{
+		ID: id,
+	}
+
+	resp, err := k.grpcClient.DeleteCredentials(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting credentials: %w", err)
+	}
+
+	return resp, nil
+}

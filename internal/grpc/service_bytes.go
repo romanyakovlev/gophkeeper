@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -31,7 +32,7 @@ func (s *Server) GetBytes(req *pb.GetBytesRequest, stream pb.KeeperService_GetBy
 	var objID uuid.UUID
 
 	// Find the file metadata in bytesDataSlice
-	var bytesData *BytesData
+	//var bytesData *BytesData
 	for _, bd := range bytesDataSlice {
 		if bd.ID == id {
 			fileName = bd.FileName
@@ -46,7 +47,7 @@ func (s *Server) GetBytes(req *pb.GetBytesRequest, stream pb.KeeperService_GetBy
 
 	*/
 	if fileName == "" {
-		return status.Errorf(codes.NotFound, "filename %s is empty", bytesData.FileName)
+		return status.Errorf(codes.NotFound, "filename %s is empty", fileName)
 	}
 
 	// Send the filename first
@@ -170,6 +171,54 @@ func (s *Server) SaveBytes(stream pb.KeeperService_SaveBytesServer) error {
 	}
 
 	return nil
+}
+
+func (s *Server) DeleteBytes(ctx context.Context, in *pb.DeleteBytesRequest) (*pb.DeleteBytesResponse, error) {
+	objID, err := uuid.Parse(in.ID)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "failed to parse ID: %v", err)
+	}
+
+	var found bool
+	var indexToDelete int
+	for index, element := range bytesDataSlice {
+		if element.ID == objID {
+			found = true
+			indexToDelete = index
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "file with ID %s not found", in.ID)
+	}
+
+	// Remove the BytesData from the slice
+	bytesDataSlice = append(bytesDataSlice[:indexToDelete], bytesDataSlice[indexToDelete+1:]...)
+
+	for index, element := range elementsDataSlice {
+		if element.ID == objID {
+			indexToDelete = index
+			break
+		}
+	}
+
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "file with ID %s not found", in.ID)
+	}
+
+	// Remove the BytesData from the slice
+	elementsDataSlice = append(elementsDataSlice[:indexToDelete], elementsDataSlice[indexToDelete+1:]...)
+
+	// Attempt to delete the file from the filesystem
+	filePath := filepath.Join("uploaded_files", objID.String())
+	if err := os.Remove(filePath); err != nil {
+		// Consider how you'd like to handle the file not existing or other removal errors
+		// This could be a warning or an error, depending on requirements
+		return nil, status.Errorf(codes.Internal, "failed to delete file: %v", err)
+	}
+
+	return &pb.DeleteBytesResponse{Success: true}, nil
 }
 
 /*
