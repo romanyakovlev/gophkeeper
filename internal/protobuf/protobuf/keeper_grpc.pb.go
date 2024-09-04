@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,10 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	KeeperService_GetText_FullMethodName   = "/keeper.KeeperService/GetText"
-	KeeperService_SaveText_FullMethodName  = "/keeper.KeeperService/SaveText"
-	KeeperService_GetBytes_FullMethodName  = "/keeper.KeeperService/GetBytes"
-	KeeperService_SaveBytes_FullMethodName = "/keeper.KeeperService/SaveBytes"
+	KeeperService_GetText_FullMethodName         = "/keeper.KeeperService/GetText"
+	KeeperService_SaveText_FullMethodName        = "/keeper.KeeperService/SaveText"
+	KeeperService_GetBytes_FullMethodName        = "/keeper.KeeperService/GetBytes"
+	KeeperService_SaveBytes_FullMethodName       = "/keeper.KeeperService/SaveBytes"
+	KeeperService_GetCredentials_FullMethodName  = "/keeper.KeeperService/GetCredentials"
+	KeeperService_SaveCredentials_FullMethodName = "/keeper.KeeperService/SaveCredentials"
+	KeeperService_GetElements_FullMethodName     = "/keeper.KeeperService/GetElements"
 )
 
 // KeeperServiceClient is the client API for KeeperService service.
@@ -33,6 +37,9 @@ type KeeperServiceClient interface {
 	SaveText(ctx context.Context, in *SaveTextRequest, opts ...grpc.CallOption) (*SaveTextResponse, error)
 	GetBytes(ctx context.Context, in *GetBytesRequest, opts ...grpc.CallOption) (KeeperService_GetBytesClient, error)
 	SaveBytes(ctx context.Context, opts ...grpc.CallOption) (KeeperService_SaveBytesClient, error)
+	GetCredentials(ctx context.Context, in *GetCredentialsRequest, opts ...grpc.CallOption) (*GetCredentialsResponse, error)
+	SaveCredentials(ctx context.Context, in *SaveCredentialsRequest, opts ...grpc.CallOption) (*SaveCredentialsResponse, error)
+	GetElements(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Elements, error)
 }
 
 type keeperServiceClient struct {
@@ -127,6 +134,33 @@ func (x *keeperServiceSaveBytesClient) CloseAndRecv() (*SaveBytesResponse, error
 	return m, nil
 }
 
+func (c *keeperServiceClient) GetCredentials(ctx context.Context, in *GetCredentialsRequest, opts ...grpc.CallOption) (*GetCredentialsResponse, error) {
+	out := new(GetCredentialsResponse)
+	err := c.cc.Invoke(ctx, KeeperService_GetCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) SaveCredentials(ctx context.Context, in *SaveCredentialsRequest, opts ...grpc.CallOption) (*SaveCredentialsResponse, error) {
+	out := new(SaveCredentialsResponse)
+	err := c.cc.Invoke(ctx, KeeperService_SaveCredentials_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *keeperServiceClient) GetElements(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Elements, error) {
+	out := new(Elements)
+	err := c.cc.Invoke(ctx, KeeperService_GetElements_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // KeeperServiceServer is the server API for KeeperService service.
 // All implementations must embed UnimplementedKeeperServiceServer
 // for forward compatibility
@@ -135,6 +169,9 @@ type KeeperServiceServer interface {
 	SaveText(context.Context, *SaveTextRequest) (*SaveTextResponse, error)
 	GetBytes(*GetBytesRequest, KeeperService_GetBytesServer) error
 	SaveBytes(KeeperService_SaveBytesServer) error
+	GetCredentials(context.Context, *GetCredentialsRequest) (*GetCredentialsResponse, error)
+	SaveCredentials(context.Context, *SaveCredentialsRequest) (*SaveCredentialsResponse, error)
+	GetElements(context.Context, *emptypb.Empty) (*Elements, error)
 	mustEmbedUnimplementedKeeperServiceServer()
 }
 
@@ -153,6 +190,15 @@ func (UnimplementedKeeperServiceServer) GetBytes(*GetBytesRequest, KeeperService
 }
 func (UnimplementedKeeperServiceServer) SaveBytes(KeeperService_SaveBytesServer) error {
 	return status.Errorf(codes.Unimplemented, "method SaveBytes not implemented")
+}
+func (UnimplementedKeeperServiceServer) GetCredentials(context.Context, *GetCredentialsRequest) (*GetCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCredentials not implemented")
+}
+func (UnimplementedKeeperServiceServer) SaveCredentials(context.Context, *SaveCredentialsRequest) (*SaveCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveCredentials not implemented")
+}
+func (UnimplementedKeeperServiceServer) GetElements(context.Context, *emptypb.Empty) (*Elements, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetElements not implemented")
 }
 func (UnimplementedKeeperServiceServer) mustEmbedUnimplementedKeeperServiceServer() {}
 
@@ -250,6 +296,60 @@ func (x *keeperServiceSaveBytesServer) Recv() (*SaveBytesRequest, error) {
 	return m, nil
 }
 
+func _KeeperService_GetCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).GetCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_GetCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).GetCredentials(ctx, req.(*GetCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_SaveCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveCredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).SaveCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_SaveCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).SaveCredentials(ctx, req.(*SaveCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _KeeperService_GetElements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(KeeperServiceServer).GetElements(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: KeeperService_GetElements_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(KeeperServiceServer).GetElements(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // KeeperService_ServiceDesc is the grpc.ServiceDesc for KeeperService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -264,6 +364,18 @@ var KeeperService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveText",
 			Handler:    _KeeperService_SaveText_Handler,
+		},
+		{
+			MethodName: "GetCredentials",
+			Handler:    _KeeperService_GetCredentials_Handler,
+		},
+		{
+			MethodName: "SaveCredentials",
+			Handler:    _KeeperService_SaveCredentials_Handler,
+		},
+		{
+			MethodName: "GetElements",
+			Handler:    _KeeperService_GetElements_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

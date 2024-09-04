@@ -96,23 +96,6 @@ func (s *Server) GetBytes(req *pb.GetBytesRequest, stream pb.KeeperService_GetBy
 	return nil
 }
 
-/*
-func (s *Server) SaveBytes(ctx context.Context, in *pb.SaveBytesRequest) (*pb.SaveBytesResponse, error) {
-
-	objID := uuid.New()
-	bytesDataSlice = append(bytesDataSlice, BytesData{
-		ID:     objID,
-		Bytes:  in.Bytes,
-		Name:   in.Name,
-		UserID: uuid.New(),
-	})
-
-	return &pb.SaveBytesResponse{ID: objID.String()}, nil
-
-}
-
-*/
-
 func (s *Server) SaveBytes(stream pb.KeeperService_SaveBytesServer) error {
 	var filename string
 	var hashSum string
@@ -171,6 +154,13 @@ func (s *Server) SaveBytes(stream pb.KeeperService_SaveBytesServer) error {
 		ID:       objID,
 		FileName: filename,
 		UserID:   uuid.New(),
+	})
+
+	elementsDataSlice = append(elementsDataSlice, ElementData{
+		ID:     objID,
+		Name:   filename,
+		UserID: uuid.New(),
+		Type:   "bytes",
 	})
 
 	if err := stream.SendAndClose(&pb.SaveBytesResponse{

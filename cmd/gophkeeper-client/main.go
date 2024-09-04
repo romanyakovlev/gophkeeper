@@ -17,8 +17,10 @@ func main() {
 	keeper := client.NewKeeperServiceClient(conn)
 
 	// Adjust path to the actual file you intend to upload
-	//err = keeper.SaveBytes(context.Background(), "./file.txt")
-	err = keeper.GetBytes(context.Background(), "df24daf0-eefa-4254-bc7f-d1fcb9d263a9")
+	err = keeper.SaveBytes(context.Background(), "./file.txt")
+	err = keeper.SaveBytes(context.Background(), "./file.txt")
+	_, err = keeper.SaveCredentials(context.Background(), "login", "password")
+	//err = keeper.GetBytes(context.Background(), "df24daf0-eefa-4254-bc7f-d1fcb9d263a9")
 	if err != nil {
 		log.Fatalf("Failed to upload file: %v", err)
 	}

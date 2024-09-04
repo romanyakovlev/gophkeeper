@@ -10,6 +10,9 @@ service KeeperService {
   rpc SaveText(SaveTextRequest) returns (SaveTextResponse);
   rpc GetBytes(GetBytesRequest) returns (stream GetBytesResponse);
   rpc SaveBytes(stream SaveBytesRequest) returns (SaveBytesResponse);
+  rpc GetCredentials(GetCredentialsRequest) returns (GetCredentialsResponse);
+  rpc SaveCredentials(SaveCredentialsRequest) returns (SaveCredentialsResponse);
+  rpc GetElements(google.protobuf.Empty) returns (Elements);
 }
 
 message GetTextRequest {
@@ -52,5 +55,34 @@ message SaveBytesRequest {
 
 message SaveBytesResponse {
   string ID = 1;
+}
+
+message GetCredentialsRequest {
+  string ID = 1;
+}
+
+message GetCredentialsResponse {
+  string login = 1;
+  string password = 2;
+}
+
+message SaveCredentialsRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message SaveCredentialsResponse {
+  string ID = 1;
+}
+
+message Element {
+  string id = 1;
+  string name = 2;
+  string user_id = 3;
+  string type = 4;
+}
+
+message Elements {
+  repeated Element elements = 1;
 }
 

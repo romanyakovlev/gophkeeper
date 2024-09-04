@@ -25,11 +25,11 @@ func NewKeeperServiceClient(grpcConn *grpc.ClientConn) *KeeperServiceClient {
 	}
 }
 
-func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) error {
+func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) (string, error) {
 	// Initiate the GetBytes stream request using the provided ID
 	stream, err := k.grpcClient.GetBytes(ctx, &pb.GetBytesRequest{ID: id})
 	if err != nil {
-		return fmt.Errorf("error initiating GetBytes stream: %w", err)
+		return "", fmt.Errorf("error initiating GetBytes stream: %w", err)
 	}
 	var filename string
 	var hashSum string
@@ -37,11 +37,11 @@ func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) error {
 
 	req, err := stream.Recv()
 	if err != nil {
-		return err
+		return "", err
 	}
 	filename = req.GetFilename()
 	if filename == "" {
-		return fmt.Errorf("first message did not contain a filename")
+		return "", fmt.Errorf("first message did not contain a filename")
 	}
 
 	saveDir := "downloaded_files"
@@ -49,7 +49,7 @@ func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) error {
 
 	outFile, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %v", filePath, err)
+		return "", fmt.Errorf("failed to create file %s: %v", filePath, err)
 	}
 	defer outFile.Close()
 
@@ -59,13 +59,13 @@ func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) error {
 			break
 		}
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		chunk := req.GetChunk()
 		if chunk != nil {
 			if _, err := outFile.Write(chunk); err != nil {
-				return fmt.Errorf("failed to write chunk to file: %v", err)
+				return "", fmt.Errorf("failed to write chunk to file: %v", err)
 			}
 			hasher.Write(chunk) // Update hash with the chunk
 			continue
@@ -80,10 +80,10 @@ func (k *KeeperServiceClient) GetBytes(ctx context.Context, id string) error {
 	// Calculate and compare hash sum
 	calculatedHash := hex.EncodeToString(hasher.Sum(nil))
 	if calculatedHash != hashSum {
-		return fmt.Errorf("hash mismatch: received %s, calculated %s", hashSum, calculatedHash)
+		return "", fmt.Errorf("hash mismatch: received %s, calculated %s", hashSum, calculatedHash)
 	}
 
-	return nil
+	return filePath, nil
 }
 
 // UploadFile uploads a file to the server using gRPC streaming.
