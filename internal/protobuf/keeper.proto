@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package keeper;
+option go_package = "./protobuf";
+
+import "google/protobuf/empty.proto";
+
+service KeeperService {
+  rpc GetText(GetTextRequest) returns (GetTextResponse);
+  rpc SaveText(SaveTextRequest) returns (SaveTextResponse);
+  rpc DeleteText(DeleteTextRequest) returns (DeleteTextResponse);
+
+  rpc GetBytes(GetBytesRequest) returns (stream GetBytesResponse);
+  rpc SaveBytes(stream SaveBytesRequest) returns (SaveBytesResponse);
+  rpc DeleteBytes(DeleteBytesRequest) returns (DeleteBytesResponse);
+
+  rpc GetCredentials(GetCredentialsRequest) returns (GetCredentialsResponse);
+  rpc SaveCredentials(SaveCredentialsRequest) returns (SaveCredentialsResponse);
+  rpc DeleteCredentials(DeleteCredentialsRequest) returns (DeleteCredentialsResponse);
+
+  rpc GetCreditCard(GetCreditCardRequest) returns (GetCreditCardResponse);
+  rpc SaveCreditCard(SaveCreditCardRequest) returns (SaveCreditCardResponse);
+  rpc DeleteCreditCard(DeleteCreditCardRequest) returns (DeleteCreditCardResponse);
+
+
+  rpc GetElements(google.protobuf.Empty) returns (Elements);
+}
+
+
+// Text
+
+message GetTextRequest {
+  string ID = 1;
+}
+
+message GetTextResponse {
+  string text = 1;
+  string name = 2;
+}
+
+message DeleteTextRequest {
+  string ID = 1;
+}
+
+message DeleteTextResponse {
+  bool success = 1;
+}
+
+message SaveTextRequest {
+  string text = 1;
+  string name = 2;
+}
+
+message SaveTextResponse {
+  string ID = 1;
+}
+
+message GetBytesRequest {
+  string ID = 1;
+}
+
+// Bytes
+
+message GetBytesResponse {
+  oneof data {
+    string filename = 1;
+    bytes chunk = 2;
+    string hashSum = 3;
+  }
+}
+
+message SaveBytesRequest {
+  oneof data {
+    string filename = 1;
+    bytes chunk = 2;
+    string hashSum = 3;
+  }
+}
+
+message SaveBytesResponse {
+  string ID = 1;
+}
+
+message DeleteBytesRequest {
+  string ID = 1;
+}
+
+message DeleteBytesResponse {
+  bool success = 1;
+}
+
+// Credentials
+
+message GetCredentialsRequest {
+  string ID = 1;
+}
+
+message GetCredentialsResponse {
+  string login = 1;
+  string password = 2;
+}
+
+message SaveCredentialsRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message SaveCredentialsResponse {
+  string ID = 1;
+}
+
+message DeleteCredentialsRequest {
+  string ID = 1;
+}
+
+message DeleteCredentialsResponse {
+  bool success = 1;
+}
+
+// Credit Card
+
+message GetCreditCardRequest {
+  string ID = 1;
+}
+
+message GetCreditCardResponse {
+  string cardNumber = 1;
+  string exp = 2;
+  string cvv = 3;
+}
+
+message SaveCreditCardRequest {
+  string cardNumber = 1;
+  string exp = 2;
+  string cvv = 3;
+}
+
+message SaveCreditCardResponse {
+  string ID = 1;
+}
+
+message DeleteCreditCardRequest {
+  string ID = 1;
+}
+
+message DeleteCreditCardResponse {
+  bool success = 1;
+}
+
+message Element {
+  string id = 1;
+  string name = 2;
+  string user_id = 3;
+  string type = 4;
+}
+
+message Elements {
+  repeated Element elements = 1;
+}
+
