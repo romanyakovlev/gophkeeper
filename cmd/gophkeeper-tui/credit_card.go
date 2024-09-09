@@ -214,16 +214,16 @@ func (m CreateCreditCardModel) Update(msg bubbletea.Msg) (bubbletea.Model, bubbl
 }
 
 func (m CreateCreditCardModel) View() string {
-	return fmt.Sprintf(
+	s := fmt.Sprintf(
 		`
 
- %s
- %s
+%s
+%s
 
- %s  %s
- %s  %s
+%s  %s
+%s  %s
 
- %s
+%s
 `,
 		inputStyle.Width(30).Render("Card Number"),
 		m.inputs[ccn].View(),
@@ -233,6 +233,19 @@ func (m CreateCreditCardModel) View() string {
 		m.inputs[cvv].View(),
 		continueStyle.Render("Continue ->"),
 	) + "\n"
+	var sb strings.Builder
+
+	sb.WriteString("\nPress Tab for menu.")
+	sb.WriteString("\nPress Ctrl+C to exit.")
+	sb.WriteString("\nPress Enter to select an item.")
+
+	view1 := docStyle.Render("Credit Card\n" + s + sb.String())
+	view2 := m.parentModel.elements.Styles.Title.Render("Data") + "\n\n" + m.parentModel.data
+
+	style1 := docStyle.Width(int(float64(width) * 0.5))
+	style2 := lipgloss.NewStyle().Margin(2, 2, 2, 0).Width(int(float64(width) * 0.5))
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, []string{style1.Render(view1), style2.Render(view2)}...)
 }
 
 // nextInput focuses the next input field

@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/textinput"
 	bubbletea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/romanyakovlev/gophkeeper/internal/client"
 	"google.golang.org/grpc"
 	"log"
@@ -192,5 +193,17 @@ func (m CreateCredentialsModel) View() string {
 	b.WriteString(cursorModeHelpStyle.Render(m.cursorMode.String()))
 	b.WriteString(helpStyle.Render(" (ctrl+r to change style)"))
 
-	return b.String()
+	var sb strings.Builder
+
+	sb.WriteString("\nPress Tab for menu.")
+	sb.WriteString("\nPress Ctrl+C to exit.")
+	sb.WriteString("\nPress Enter to select an item.")
+
+	view1 := docStyle.Render(b.String() + sb.String())
+	view2 := m.parentModel.elements.Styles.Title.Render("Data") + "\n\n" + m.parentModel.data
+
+	style1 := docStyle.MarginLeft(2).Width(int(float64(width) * 0.5))
+	style2 := lipgloss.NewStyle().Margin(2, 2, 2, 0).Width(int(float64(width) * 0.5))
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, []string{style1.Render(view1), style2.Render(view2)}...)
 }

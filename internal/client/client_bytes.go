@@ -7,7 +7,6 @@ import (
 	"fmt"
 	pb "github.com/romanyakovlev/gophkeeper/internal/protobuf/protobuf"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -107,7 +106,7 @@ func (k *KeeperServiceClient) SaveBytes(ctx context.Context, filePath string) er
 		}
 
 		// Update hasher with the chunk
-		print("\nstart:\n" + string(buf[:n]) + "\nend\n")
+		//print("\nstart:\n" + string(buf[:n]) + "\nend\n")
 		hasher.Write(buf[:n])
 
 		// Send the chunk to the server
@@ -129,12 +128,12 @@ func (k *KeeperServiceClient) SaveBytes(ctx context.Context, filePath string) er
 	}
 
 	// Close the stream and get the server's response
-	resp, err := stream.CloseAndRecv()
+	_, err = stream.CloseAndRecv()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Upload response: %s", resp.ID)
+	//log.Printf("Upload response: %s", resp.ID)
 
 	return nil
 }
